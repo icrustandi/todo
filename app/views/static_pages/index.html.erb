@@ -12,9 +12,7 @@
 
 <script>
   $(function() { // wait until current page loads -> page load in event queue
-    $.get("/tasks").success( function( data ) { //wait for http response -> http response in event queue
-      var htmlString = "";
-      $.each(data, function(index,  task) { //loop through todo data array, executed inline, not in event queue. 
+      function taskHtml(task){ //method that builds HTML representation of the li tag
         var checkedStatus = task.done ? "checked" : "";
         var liElement = '<li><div class="view"><input class="toggle" type="checkbox"' +
         " data-id='" + task.id + "'" +
@@ -22,18 +20,13 @@
         '><label>' +
          task.title +
          '</label></div></li>';
-        htmlString += liElement;
+        return liElement;
+      }
 
-      });
-      var ulTodos = $('.todo-list'); //finds todo-list ul block and stores it into vraible
-      ulTodos.html(htmlString); //inserts htmlString into ul todo-list
-
-      $('.toggle').change(function(e) {
+      function toggleTask(e){ // method that takes in HTML representation of an event that fires from an HTML representation of the toggle checkbox and performs an API request to toggle the value of the done field POST/PUT
         var itemId = $(e.target).data("id");
-        console.log(itemId);
 
         var doneValue = Boolean($(e.target).is(':checked'));
-        console.log("done:", doneValue);
 
         $.post("/tasks/" + itemId, {
           _method: "PUT",
@@ -41,8 +34,18 @@
             done: doneValue
           }
         });
+      }
 
+    $.get("/tasks").success( function( data ) { //wait for http response -> http response in event queue
+      var htmlString = "";
+      $.each(data, function(index,  task) { //loop through todo data array, executed inline, not in event queue. 
+        htmlString += taskHtml(task);
       });
+
+      var ulTodos = $('.todo-list'); //finds todo-list ul block and stores it into vraible
+      ulTodos.html(htmlString); //inserts htmlString into ul todo-list
+
+      $('.toggle').change(toggleTask);
 
     });
   });
