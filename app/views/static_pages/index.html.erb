@@ -11,18 +11,21 @@
 </section>
 
 <script>
-  $(function() {
-    $.get("/tasks").success( function( data ) {
+  $(function() { // wait until current page loads -> page load in event queue
+    $.get("/tasks").success( function( data ) { //wait for http response -> http response in event queue
       var htmlString = "";
-      $.each(data, function(index,  task) {
-        var liElement = '<li><div class="view"><input class="toggle" type="checkbox"><label>' +
+      $.each(data, function(index,  task) { //loop through todo data array, executed inline, not in event queue. 
+        var checkedStatus = task.done ? "checked" : "";
+        var liElement = '<li><div class="view"><input class="toggle" type="checkbox"' +
+        checkedStatus +
+        '><label>' +
          task.title +
          '</label></div></li>';
         htmlString += liElement;
 
       });
-      var ulTodos = $('.todo-list');
-      ulTodos.html(htmlString);
+      var ulTodos = $('.todo-list'); //finds todo-list ul block and stores it into vraible
+      ulTodos.html(htmlString); //inserts htmlString into ul todo-list
     });
   });
 </script>
